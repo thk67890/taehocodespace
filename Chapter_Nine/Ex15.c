@@ -20,7 +20,7 @@ double median_attempt_Two(double x, double y, double z);
 
 int main(void)
 {
-    printf("Median: %0.1f\n", median(5,7,2));
+    printf("Median: %0.1f\n", median_attempt_Two(5,7,2));
 }
 
 double median(double x, double y, double z)
@@ -73,5 +73,24 @@ double median(double x, double y, double z)
 
 double median_attempt_Two(double x, double y, double z)
 {
+    int median;
+    
+    if (x <= y)
+        if(y <= z){ 
+            median = y;
+        }
+
+        else if (x <= z){
+            median = z;
+        }
+        else {
+            median = x;
+        }
+    
+    else if (z <= y) median = y;
+    else median = x;
+    
+    
+    return median;    
 
 }
