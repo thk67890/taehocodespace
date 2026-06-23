@@ -22,11 +22,10 @@ void print_result(void);
 
 int main(void)
 {
-    for(;;) {
+    while(getchar() != 'q') {
         read_cards();
         analyze_hand();
         print_result();
-
     }
 }
 
@@ -72,6 +71,7 @@ void read_cards(void)
             case 'a': case 'A': rank = 12; break;
             default: bad_card = true;
         }
+        
 
         suit_ch = getchar();
         switch (suit_ch) {
@@ -81,7 +81,7 @@ void read_cards(void)
             case 's': case 'S': suit = 3; break;
             default: bad_card = true;
         }
-
+ 
         while((ch = getchar()) != '\n')
             if (ch != ' ') bad_card = true;
         
@@ -92,16 +92,23 @@ void read_cards(void)
         else {
             hand[cards_read][0] = rank; //Marking Rank of Collected Card by incrementing array element of that rank
             hand[cards_read][1] = suit; //Marking Suit of Collected Card by incrementing array element of that suit
+            printf("(%d,%d)",hand[cards_read][0],hand[cards_read][1]);
             card_exists[rank][suit] = true;
             cards_read++;
         }
     }
+    /*printf("read cards: ");
+    for(int i = 0; i < NUM_CARDS; i++){
+        printf("%d", hand[i][1]);
+    }
+    printf("\n"); */
 }
+//read_cards checked. No Problem. Cards are read normally
 
 void analyze_hand(void)
 {
     int num_consec = 0;
-    int rank, suit;
+    int a = 0, b = 0;
     int temp = 0;
 
     straight = false;
@@ -118,13 +125,15 @@ void analyze_hand(void)
 
     */
     //flush traker Hands ver.
-    for(int i = 0; i < NUM_CARDS; i++){
-        if(hand[0][1] == hand[0][i]) temp++;
-        else break;
+
+    for(int i = 1; i < NUM_CARDS; i++){
+        if(hand[0][1] == hand[i][1]) temp++;
+        //printf("%d",hand[i][1]);
     }
     
-    if(temp == NUM_CARDS) flush = true;
+    //printf("%d",temp);
 
+    if(temp == NUM_CARDS-1) flush = true;
     /*
     rank = 0;
     while(num_in_rank[rank] == 0) rank++; //searching for the start of consecutive ranks in the hand
@@ -136,11 +145,11 @@ void analyze_hand(void)
     }
     */
    //straight tracker Hands Ver.
-   for(int i = 0; i < NUM_CARDS; i++){
-        if(hand[i+1][0] == hand[i][0] + 1) num_consec++;
-        else break;
+   for(int i = 0; i < NUM_CARDS-1; i++){
+        if(hand[i+1][0] == (hand[i][0] + 1)) num_consec++;
    }
-   if(num_consec == NUM_CARDS) {
+
+   if(num_consec == NUM_CARDS-1) {
         straight = true;
         return;
    }
@@ -152,8 +161,6 @@ void analyze_hand(void)
     }
     */
    //rank analyzer Hands Ver.
-   int a = 0;
-   int b = 0;
    for(int i = 0; i < NUM_CARDS; i++){
         for(int j = 0; j < NUM_CARDS; j++){
             a = 0;
@@ -161,7 +168,8 @@ void analyze_hand(void)
         }
         
         if(a>b) b = a;
-   }
+    }
+    printf("%d",b);
     if(b == 4) four = true; //4 cards of the same rank --> four of a kind
     if(b == 3) three = true; //3 cards of the same rank --> three of a kind
     if(b == 2) pairs++; //2 cards of the same rank --> one pair
