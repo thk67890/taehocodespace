@@ -1,9 +1,4 @@
-//Remove the num_in_rank, num_in_suit, and card_exists arrays from the poker.c program of Section 10.5. Have the program store the cards in a 5 x 2 array instead.
-//Each row of the array will represent a card. For example, if the array is named hand, then hand[0][0] will store the rank of the first card and hand[0][1] will 
-//store the suit of the first card.
-
-//poker.c
-
+//Modify the poker.c program of Section 10.5 by allowing "ace-low" straights (ace,two,three, four, five)
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,8 +7,10 @@
 #define NUM_SUITS 4
 #define NUM_CARDS 5
 
-int hand[5][2];
-bool straight, flush, four, three;
+int num_in_rank[NUM_RANKS];
+int num_in_suit[NUM_SUITS];
+bool straight, flush, four, three, ace_straight;
+bool ace;
 int pairs;
 
 void read_cards(void);
@@ -26,6 +23,7 @@ int main(void)
         read_cards();
         analyze_hand();
         print_result();
+
     }
 }
 
@@ -38,14 +36,13 @@ void read_cards(void)
     int cards_read = 0;
 
     for(rank = 0; rank < NUM_RANKS; rank++) {
+        num_in_rank[rank] = 0;
         for(suit = 0; suit < NUM_SUITS; suit++)
-            card_exists[rank][suit] = false; //Initializing Duplication Traker
+            card_exists[rank][suit] = false;
     }
 
-    for(int i = 0; i < NUM_CARDS; i++){ //Initializing hand arr to 0s
-        for(int j = 0; j <2; j++){
-            hand[i][j] = 0;
-        }
+    for(suit = 0; suit < NUM_CARDS; suit++) {
+        num_in_suit[suit] = 0;
     }
 
     while(cards_read < NUM_CARDS) {
@@ -68,10 +65,9 @@ void read_cards(void)
             case 'j': case 'J': rank = 9; break;
             case 'q': case 'Q': rank = 10; break;
             case 'k': case 'K': rank = 11; break;
-            case 'a': case 'A': rank = 12; break;
+            case 'a': case 'A': rank = 12; ace = true; break;
             default: bad_card = true;
         }
-        
 
         suit_ch = getchar();
         switch (suit_ch) {
@@ -81,7 +77,7 @@ void read_cards(void)
             case 's': case 'S': suit = 3; break;
             default: bad_card = true;
         }
- 
+
         while((ch = getchar()) != '\n')
             if (ch != ' ') bad_card = true;
         
@@ -90,93 +86,64 @@ void read_cards(void)
         else if (card_exists[rank][suit])
             printf("Duplicae card; ignored.\n");
         else {
-            hand[cards_read][0] = rank; //Marking Rank of Collected Card by incrementing array element of that rank
-            hand[cards_read][1] = suit; //Marking Suit of Collected Card by incrementing array element of that suit
-            //printf("(%d,%d)",hand[cards_read][0],hand[cards_read][1]);
+            num_in_rank[rank]++; //Marking Rank of Collected Card by incrementing array element of that rank
+            num_in_suit[suit]++; //Marking Suit of Collected Card by incrementing array element of that suit
             card_exists[rank][suit] = true;
             cards_read++;
         }
     }
-    /*printf("read cards: ");
-    for(int i = 0; i < NUM_CARDS; i++){
-        printf("%d", hand[i][1]);
-    }
-    printf("\n"); */
 }
-//read_cards checked. No Problem. Cards are read normally
 
 void analyze_hand(void)
 {
     int num_consec = 0;
-    int a = 0, b = 0;
-    int temp = 0;
+    int rank_temp,rank, suit;
 
     straight = false;
     flush = false;
     four = false;
     three = false;
+    ace_straight = false;
+    
+    bool rank_check = false;
+    
     pairs = 0;
 
-    /*
-    for(suit = 0; suit < NUM_SUITS; suit++) //if all cards in the hand have the same suit --> FLUSH
-        if(num_in_suit[suit] == NUM_CARDS)
+    for(suit = 0; suit < NUM_SUITS; suit++){ //if all cards in the hand have the same suit --> FLUSH
+        if(num_in_suit[suit] == NUM_CARDS){
             flush = true;
-    
-
-    */
-    //flush traker Hands ver.
-
-    for(int i = 1; i < NUM_CARDS; i++){
-        if(hand[0][1] == hand[i][1]) temp++;
-        //printf("%d",hand[i][1]);
+        }
     }
-    
-    //printf("%d",temp);
 
-    if(temp == NUM_CARDS-1) flush = true;
-    /*
     rank = 0;
+    
     while(num_in_rank[rank] == 0) rank++; //searching for the start of consecutive ranks in the hand
-    for(; rank < NUM_RANKS && num_in_rank[rank] > 0; rank++) //counting how many ranks are consecutive in the hand
+
+    if (rank == 0) rank_check = true;
+    
+    for(; rank < NUM_RANKS && num_in_rank[rank] > 0; rank++){ //counting how many ranks are consecutive in the hand
         num_consec++;
+    }
+    if(rank_check == true && (num_consec == NUM_CARDS-1) && ace == true){
+        //printf("Ace detected");
+        ace_straight = true;
+    }
     if(num_consec == NUM_CARDS) { //if the number of consecutive cards is equal to the total number of cards in the hand --> Straight
         straight = true;
         return;
     }
-    */
-   //straight tracker Hands Ver.
-   for(int i = 0; i < NUM_CARDS-1; i++){
-        if(hand[i+1][0] == (hand[i][0] + 1)) num_consec++;
-   }
 
-   if(num_consec == NUM_CARDS-1) {
-        straight = true;
-        return;
-   }
-    /*
     for(rank = 0; rank < NUM_RANKS; rank++) {
         if(num_in_rank[rank] == 4) four = true; //4 cards of the same rank --> four of a kind
         if(num_in_rank[rank] == 3) three = true; //3 cards of the same rank --> three of a kind
         if(num_in_rank[rank] == 2) pairs++; //2 cards of the same rank --> one pair
     }
-    */
-   //rank analyzer Hands Ver
-    for(int i = 0; i < NUM_CARDS;i++){
-        for(int j = 0; j < NUM_CARDS; j++){
-        if(hand[i][0] == hand [j][0]) a++;
-        }
-        if (a>b) b = a;
-        a = 0;
-    }
-
-    if(b == 4) four = true; //4 cards of the same rank --> four of a kind
-    if(b == 3) three = true; //3 cards of the same rank --> three of a kind
-    if(b == 2) pairs++; //2 cards of the same rank --> one pair
 }
 
 void print_result(void)
 {
     if(straight && flush)   printf("Straight flush");
+    else if(ace_straight)   printf("Ace Low");
     else if(four)           printf("Four of a Kind");
     else if(three &&
             pairs == 1)     printf("Full house");
