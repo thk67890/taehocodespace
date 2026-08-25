@@ -36,12 +36,13 @@ void read_cards(void)
     for(rank = 0; rank < NUM_RANKS; rank++) {
         num_in_rank[rank] = 0;
         for(suit = 0; suit < NUM_SUITS; suit++)
+            num_in_suit[suit] = 0; //moving intialization of num_in_suit array below into this for loop to reduce redundancy
             card_exists[rank][suit] = false;
     }
 
-    for(suit = 0; suit < NUM_CARDS; suit++) {
+    /*for(suit = 0; suit < NUM_CARDS; suit++) {
         num_in_suit[suit] = 0;
-    }
+    }*/ 
 
     while(cards_read < NUM_CARDS) {
         bad_card = false;
@@ -132,8 +133,9 @@ void print_result(void)
     else if(flush)          printf("Flush");
     else if(straight)       printf("Straight");
     else if(three)          printf("Three of a kind");
-    else if(pairs == 2)     printf("Pair");
-    else if(pairs == 1)     printf("High card");
+    else if(pairs == 2)     printf("Two Pair");
+    else if(pairs == 1)     printf("Pair");
+    else                    printf("High Card");
 
     printf("\n");
 }

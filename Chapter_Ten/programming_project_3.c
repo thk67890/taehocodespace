@@ -110,6 +110,27 @@ void analyze_hand(void)
     int num_consec = 0;
     int a = 0, b = 0;
     int temp = 0;
+    int stemp = 0;
+    
+    for(int k = 0; k < NUM_CARDS; k++){
+        printf("%d\n", hand[k][0]);
+    }
+    printf("\n");
+
+    for(int i = 0; i <= NUM_CARDS-1; i++){
+        for(int j = 1; j <= NUM_CARDS; j++){
+            if(hand[i][0] > hand[j][0]){
+                stemp = hand[i][0];
+                hand[i][0] = hand[j][0];
+                hand[j][0] = stemp;
+            }
+        }
+    }
+    for(int f = 0; f < NUM_CARDS; f++){
+        printf("%d\n", hand[f][0]);
+    }
+    printf("\n");
+
 
     straight = false;
     flush = false;
@@ -126,7 +147,7 @@ void analyze_hand(void)
     */
     //flush traker Hands ver.
 
-    for(int i = 1; i < NUM_CARDS; i++){
+    for(int i = 1; i < NUM_CARDS; i++){ 
         if(hand[0][1] == hand[i][1]) temp++;
         //printf("%d",hand[i][1]);
     }
@@ -145,7 +166,7 @@ void analyze_hand(void)
     }
     */
    //straight tracker Hands Ver.
-   for(int i = 0; i < NUM_CARDS-1; i++){
+   for(int i = 0; i < NUM_CARDS-1; i++){//NEED TO ADD SORT Mechanism that sorts cards in chronological order right after hand is fully received for this mechanism to work
         if(hand[i+1][0] == (hand[i][0] + 1)) num_consec++;
    }
 
