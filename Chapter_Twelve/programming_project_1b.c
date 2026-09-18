@@ -45,39 +45,38 @@ int main(void)
 void process(char *ptr,int count)
 {
     char temp;
-    for(int i = 0; i < count; i++) { //Review 때는 이걸 완전히 pointer로만 해보기 ptr subscripting말고 그냥 순수 ptr arithmetic으로
-        temp = ptr[count-1];
-        ptr[count-1] = ptr[i];
-        ptr[i] = temp;
+    for(ptr; ptr < ptr + count; ptr++) { //Review 때는 이걸 완전히 pointer로만 해보기 ptr subscripting말고 그냥 순수 ptr arithmetic으로
+        temp = *(ptr + (count-1));
+        *(ptr + (count-1)) = *ptr;
+        *ptr = temp;
         count--;
         
     }
+
+
 }
 
 /*
-Sample ANs
 #include <stdio.h>
 
 #define MSG_LEN 80      maximum length of message 
 
 int main(void)
 {
-  char msg[MSG_LEN];
-  int i;
+  char msg[MSG_LEN], *p;
 
   printf("Enter a message: ");
-  for (i = 0; i < MSG_LEN; i++) {
-    msg[i] = getchar();
-    if (msg[i] == '\n')
+  for (p = &msg[0]; p < &msg[MSG_LEN]; p++) {
+    *p = getchar();
+    if (*p == '\n')
       break;
   }
 
   printf("Reversal is: ");
-  for (i--; i >= 0; i--)
-    putchar(msg[i]);
+  for (p--; p >= &msg[0]; p--)
+    putchar(*p);
   putchar('\n');
 
   return 0;
 }
-
 */
