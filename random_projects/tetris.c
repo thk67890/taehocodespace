@@ -3,17 +3,14 @@
 #define BOARD_HEIGHT 10
 
 
-void init_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
-void draw_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
-
-
 enum PieceType { I_PIECE, O_PIECE, T_PIECE, S_PIECE, Z_PIECE, J_PIECE, L_PIECE};
 
 struct Tetromino{
-    int pos_row;
-    int pos_col;
+    double pos_row;
+    double pos_col;
     enum PieceType type;
 };
+
 
 const int SHAPES[7][4][4][4] = {
                             {
@@ -69,16 +66,48 @@ const int SHAPES[7][4][4][4] = {
                         };
 
 
+void init_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
+void draw_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
+void draw_piece(struct Tetromino piece);
+bool can_move(struct Tetromino,int board[BOARD_HEIGHT][BOARD_WIDTH],int row_offset, int col_offset);
+
+
 int main()
 {
+    int ch;
+    double GRAVITY = 0.01;
+
+    struct Tetromino piece = {0,0, I_PIECE};
+
     int board[BOARD_HEIGHT][BOARD_WIDTH];
+    int row_offset = 1;
+    int col_offset = 1;
 
     initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+    timeout(20); //non-blocking doesn't wait for user input to start
+
     init_board(board);
     draw_board(board);
-
+    draw_piece(piece);
     refresh();
-    getch();
+
+    while((ch = getch()) != 'q'){
+        piece.pos_row += GRAVITY;
+        if(ch == KEY_LEFT){
+            piece.pos_col -= 1;
+        } else if(ch == KEY_RIGHT){
+            piece.pos_col +=1;
+        }
+        clear();
+        draw_board(board);
+        draw_piece(piece);
+        refresh();
+        
+    }
+
     endwin();
 }
 
@@ -115,4 +144,43 @@ void draw_board(int board[BOARD_HEIGHT][BOARD_WIDTH]){ //draw board! move to tet
 
     refresh();
 
+}
+
+void draw_piece(struct Tetromino piece){
+    int r, c;
+    int board_row, board_col;
+    //boarder condiseration
+
+    for(r = 0; r < 4; r++){
+        for(c = 0; c < 4; c++){
+            board_row = piece.pos_row + r;
+            board_col = piece.pos_col + c;
+            if(SHAPES[piece.type][0][r][c] == 1) mvprintw(board_row + 1,board_col + 1,"#");
+        }
+    }
+
+    refresh();
+}
+
+
+bool can_move(struct Tetromino piece,int board[BOARD_HEIGHT][BOARD_WIDTH],int row_offset, int col_offset){
+    int max_board_width = (BOARD_WIDTH - 1) - col_offset; // width boundary offset = boundary lines |  Right Max = 8; Over 8 --> Over boundary
+    int min_board_width =  col_offset; //1 less than 1 --> Over Boundary to the Left
+    int min_board_height =  (BOARD_HEIGHT - 1) - row_offset; // greater than 8 --> Piece goes through the board
+
+    int board_row, board_col, r,c,count;
+
+    while(1){
+        for(r = 0; r < 4; r++){
+            for(c = 0; c < 4; c++){
+                board_row = piece.pos_row + r;
+                board_col = piece.pos_col + c;
+                if((SHAPES[piece.type][0][r][c] == 1) && board_row > min_board_height && board_col < max_board_width) count++;
+                else if(board[board_row][board_col] != 0) return false; //stop if spot is already filled
+            }
+        }
+        if(count != 4) return false; //returns false if any of the unit blocks(every piece has 4 blocks) have a position that overwrites the boundaries
+
+
+    }
 }
