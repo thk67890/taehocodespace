@@ -1,5 +1,5 @@
 #include <ncurses.h>
-#define BOARD_HEIGHT 40
+#define BOARD_HEIGHT 15
 #define BOARD_WIDTH 80
 
 void init_board(int board[BOARD_HEIGHT][BOARD_WIDTH])
@@ -43,7 +43,7 @@ int main()
     
     initscr();
     getmaxyx(stdscr,row,col);
-    draw_board(row,col);
+    draw_board(BOARD_HEIGHT,BOARD_WIDTH);
 
     //init_board(board);
 
