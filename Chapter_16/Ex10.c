@@ -9,7 +9,7 @@ struct rectangle {
     struct point upper_left, lower_right;
 };
 
-A point structure stores the x and y coordinates of a poiont on the screen. A rectangle structure stores the coordinates of the
+A point structure stores the x and y coordinates of a point on the screen. A rectangle structure stores the coordinates of the
 upper left and lower right corners of a rectangle. Write functions that perform the following operations on a rectangle structure r
 passed as an argument
 

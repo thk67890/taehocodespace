@@ -28,7 +28,7 @@ struct time split_time(long total_seconds){
 
     return_time.seconds = total_seconds;
 
-    return return_time;
+    return return_time; //using struct allows us to pass and return more than one value from a single function call!!
 
 }
 
