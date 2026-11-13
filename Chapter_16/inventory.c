@@ -61,7 +61,7 @@ void insert(void)
     printf("Enter part number: ");
     scanf("%d", &part_number);
 
-    if(fint_part(part_number) >= 0){
+    if(find_part(part_number) >= 0){
         printf("Part alread exists. \n");
         return;
     }
@@ -70,7 +70,7 @@ void insert(void)
     printf("Enter part name: ");
     read_line(inventory[num_parts].name, NAME_LEN);
     printf("Enter quantity on hand: ");
-    scnaf("%d", &inventory[num_parts].on_hand);
+    scanf("%d", &inventory[num_parts].on_hand);
     num_parts++;
 }
 
