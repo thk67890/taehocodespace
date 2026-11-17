@@ -1,4 +1,6 @@
 #include <ncurses.h>
+#include <time.h>
+
 #define BOARD_WIDTH 10
 #define BOARD_HEIGHT 10
 
@@ -69,20 +71,19 @@ const int SHAPES[7][4][4][4] = {
 void init_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
 void draw_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
 void draw_piece(struct Tetromino piece);
+double timeSum(struct timespec ts);
+
 bool can_move(struct Tetromino,int board[BOARD_HEIGHT][BOARD_WIDTH],int row_offset, int col_offset);
 
 
 int main()
 {
     int ch;
-    double GRAVITY = 0.01;
     
 
     struct Tetromino piece = {0,0, I_PIECE};
 
     int board[BOARD_HEIGHT][BOARD_WIDTH];
-    int row_offset = 1;
-    int col_offset = 1;
 
     initscr();
     cbreak();
@@ -95,14 +96,50 @@ int main()
     draw_piece(piece);
     refresh();
 
+    struct timespec start,end;
+    double currentTime, newTime;
+    
+
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    currentTime = timeSum(start);
+
     while((ch = getch()) != 'q'){
-        piece.pos_row += GRAVITY;
-        if(piece.pos_row >=8) GRAVITY = 0;
-        if(ch == KEY_LEFT){
-            piece.pos_col -= 1;
-        } else if(ch == KEY_RIGHT){
-            piece.pos_col +=1;
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        newTime = timeSum(end);
+
+        
+        if((newTime - currentTime >= 2.5) && can_move(piece,board,1,0)){ //gravity
+            piece.pos_row += 1;
+            currentTime = newTime;
         }
+        
+        
+
+        switch(ch){
+            case KEY_LEFT: if(can_move(piece,board,0,-1)){
+                                piece.pos_col -= 1;
+                            }
+                            break;
+            
+            case KEY_RIGHT: if(can_move(piece,board,0,1)){
+                                piece.pos_col += 1;
+                            }
+                            break;
+
+            case KEY_UP:    if(can_move(piece,board,-1,0)){
+                                piece.pos_row -= 1;
+                            }
+                            break;
+
+            case KEY_DOWN:  if(can_move(piece,board,1,0)){
+                                piece.pos_row += 1;
+                            }
+                            break;
+        
+
+        }
+    
+
         if(1) {
             clear();
             draw_board(board);
@@ -170,24 +207,33 @@ void draw_piece(struct Tetromino piece){
 
 
 bool can_move(struct Tetromino piece,int board[BOARD_HEIGHT][BOARD_WIDTH],int row_offset, int col_offset){
-    int max_board_width = (BOARD_WIDTH - 1) - col_offset; // width boundary offset = boundary lines |  Right Max = 8; Over 8 --> Over boundary
-    int min_board_width =  col_offset; //1 less than 1 --> Over Boundary to the Left
-    int min_board_height =  (BOARD_HEIGHT - 1) - row_offset; // greater than 8 --> Piece goes through the board
+    int max_board_width = 9;
+    int min_board_width =  0;
+    int min_board_height = 0;
+    int max_board_height = 9;
 
-    int board_row, board_col, r,c,count;
+    int r,c,count = 0;
 
-    while(1){
-        for(r = 0; r < 4; r++){
-            count = 0;
-            for(c = 0; c < 4; c++){
-                board_row = piece.pos_row + r;
-                board_col = piece.pos_col + c;
-                if((SHAPES[piece.type][0][r][c] == 1) && (board_row >= min_board_height) && (board_col >= min_board_width) && (board_col <= max_board_width)) count++;
-                else if(board[board_row][board_col] != 0) return false; //stop if spot is already filled
+
+    for(r = 0; r < 4; r++){
+        for(c = 0; c < 4; c++){
+            if(SHAPES[piece.type][0][r][c] == 1){
+                int new_r = piece.pos_row + r + row_offset;
+                int new_c = piece.pos_col + c + col_offset;
+                if(new_r >= min_board_height && new_r <= max_board_height && new_c >= min_board_width && new_c <= max_board_width)
+                    count++;
+                else return false;
             }
         }
-        if(count == 4) return true; //returns false if any of the unit blocks(every piece has 4 blocks) have a position that overwrites the boundaries
-
-
     }
+    if(count == 4) return true;
+
+}
+
+double timeSum(struct timespec ts)
+{
+    double time;
+    time = ts.tv_sec + ts.tv_nsec * 1e-9;
+
+    return time;
 }
